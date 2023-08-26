@@ -34,3 +34,30 @@ if __name__ == "__main__":
     for s3_file_key in S3_FILE_KEYS:
         content = get_s3_file_content(BUCKET_NAME, s3_file_key)
         print(f"Content of {s3_file_key}:\n{content}\n{'-'*50}\n")
+
+from io import StringIO
+import pandas as pd
+
+def read_s3_csv_to_dataframe(bucket_name, s3_file_key):
+    """
+    Reads a CSV from S3 into a pandas DataFrame
+    Args:
+    - bucket_name (str): Name of the S3 bucket
+    - s3_file_key (str): Key (path) of the CSV file in the S3 bucket
+    
+    Returns:
+    - DataFrame: The CSV data as a pandas DataFrame
+    """
+    # Create an S3 client
+    s3 = boto3.client('s3')
+    
+    # Get object from S3
+    response = s3.get_object(Bucket=bucket_name, Key=s3_file_key)
+    
+    # Read content from the S3 object
+    csv_content = response['Body'].read().decode('utf-8')
+
+    # Convert the CSV content to DataFrame
+    df = pd.read_csv(StringIO(csv_content))
+    
+    return df
